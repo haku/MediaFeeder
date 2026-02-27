@@ -43,6 +43,7 @@ public class ShuffleHelper
 
         var query = dataContext.Videos
             .Where(v => v.Watched == false
+                        && v.Duration != null
                         && subscriptions.Select(static s => s.Id).Contains(v.SubscriptionId)
                         && !excludeOrEmpty.Contains(v));
 
@@ -66,6 +67,7 @@ public class ShuffleHelper
                 var video = await dataContext.Videos
                     .Where(v => v.SubscriptionId == subscription.Id
                                 && v.Watched == false
+                                && v.Duration != null
                                 && !reply.Contains(v)
                                 && !excludeOrEmpty.Contains(v))
                     .Include(static v => v.Subscription)
