@@ -261,6 +261,7 @@ builder.Services.AddOpenTelemetry()
             // .AddHttpClientInstrumentation()
             .AddNpgsqlInstrumentation()
             .AddMeter(MassTransit.Monitoring.InstrumentationOptions.MeterName)
+            .AddMeter("Microsoft.EntityFrameworkCore")  // https://learn.microsoft.com/en-us/ef/core/logging-events-diagnostics/metrics
             .AddMeter(Metrics.MeterName)
             .AddPrometheusExporter();
     })
