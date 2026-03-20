@@ -52,9 +52,13 @@ public class RSSSubscriptionSynchroniseConsumer(
             subscription.Name = feed.Title.Text;
         subscription.ChannelName = feed.Title.Text;
 
-        // Need to make absolute
-        subscription.Thumb = new Uri(new Uri(subscription.ChannelId), feed.ImageUrl).AbsoluteUri;
-        subscription.Thumbnail = new Uri(new Uri(subscription.ChannelId), feed.ImageUrl).AbsoluteUri;
+        if (feed.ImageUrl != null)
+        {
+            // Need to make absolute
+            subscription.Thumb = new Uri(new Uri(subscription.ChannelId), feed.ImageUrl).AbsoluteUri;
+            subscription.Thumbnail = new Uri(new Uri(subscription.ChannelId), feed.ImageUrl).AbsoluteUri;
+        }
+
         subscription.LastSynchronised = DateTimeOffset.UtcNow;
 
         await db.SaveChangesAsync(context.CancellationToken);
@@ -81,7 +85,7 @@ public class RSSSubscriptionSynchroniseConsumer(
             {
                 VideoId = item.Id,
                 Name = item.Title.Text,
-                Description = item.Summary.Text,
+                Description = item.Summary?.Text ?? "",
                 SubscriptionId = subscription.Id,
                 UploaderName = subscription.Name,
             };
@@ -94,7 +98,7 @@ public class RSSSubscriptionSynchroniseConsumer(
         video.New = DateTimeOffset.UtcNow - item.PublishDate <= TimeSpan.FromDays(7);
         video.PublishDate = item.PublishDate.UtcDateTime;
         //video.Thumb = "";
-        video.Description = item.Summary.Text;
+        video.Description = item.Summary?.Text ?? "";
         var rawDuration = item.ElementExtensions
             .ReadElementExtensions<string>("duration", "http://www.itunes.com/dtds/podcast-1.0.dtd")
             .FirstOrDefault();

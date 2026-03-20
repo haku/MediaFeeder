@@ -67,7 +67,9 @@ public partial class AddSubscription
         }
 
         // Parse page if HTML
-        if (UrlRequest.Content.Headers.ContentType?.MediaType?.Contains("html") ?? false)
+        var contentType = UrlRequest.Content.Headers.ContentType;
+        if ((contentType?.MediaType?.Contains("html") ?? false)
+            || (contentType?.MediaType?.Contains("xml") ?? false))
         {
             UrlDocument = new HtmlDocument();
             UrlDocument.LoadHtml(await UrlRequest.Content.ReadAsStringAsync());
