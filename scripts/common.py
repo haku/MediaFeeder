@@ -8,17 +8,17 @@ import asyncio
 import logging
 import time
 from collections.abc import AsyncGenerator
-from cryptography import x509
-from cryptography.x509.oid import NameOID
 from datetime import datetime
 from pathlib import Path
 from typing import NamedTuple
 
-import grpc
-import grpc.aio
-
 import Api_pb2
 import Api_pb2_grpc
+import grpc
+import grpc.aio
+from cryptography import x509
+from cryptography.x509.oid import NameOID
+
 from auth import MediaFeederConfig
 
 MINIMUM_SAVE_FREQUENCY = 60
@@ -299,14 +299,14 @@ class Shuffler:
             status_message.Loaded = status.Loaded
 
         if status.BannerMessage is not None:
-            status_message.BannerMessage = status.BannerMessage;
+            status_message.BannerMessage = status.BannerMessage
 
         await self._status_report_queue.put(status_message)
 
     async def send_banner(self, message: str, exception: Exception | None = None) -> None:
         m = message
         if exception:
-            m += f": {type(exception).__name__} {str(exception)}"
+            m += f": {type(exception).__name__} {exception!s}"
 
         update = StatusUpdate()
         update.BannerMessage = m
@@ -373,7 +373,7 @@ class Shuffler:
                     await self.send_banner("")  # clear any previous message
                 except Exception as e:
                     self._logger.exception("Can not play video")
-                    await self.send_banner(f"Can not play video \"{id_response.Title}\" ({id_response.Id})", e)
+                    await self.send_banner(f'Can not play video "{id_response.Title}" ({id_response.Id})', e)
 
                 position_to_restore_seconds = event.restore_position_seconds
                 rate_to_restore = self._saved_rate
@@ -410,11 +410,11 @@ class Shuffler:
 
 
 class LogbackLikeFormatter(logging.Formatter):
-    def formatTime(self, record, datefmt=None):
+    def formatTime(self, record: logging.LogRecord, datefmt=None) -> str:
         dt = datetime.fromtimestamp(record.created)
         return dt.strftime("%m%d %H:%M:%S.") + f"{int(record.msecs):03d}"
 
-    def format(self, record):
+    def format(self, record: logging.LogRecord) -> str:
         record.levelname = record.levelname[:1]
         record.threadName = record.threadName[-10:].rjust(10)
         record.name = record.name[-15:].rjust(15)

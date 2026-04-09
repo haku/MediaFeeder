@@ -12,12 +12,12 @@
 import argparse
 from typing import NamedTuple
 
+import Api_pb2
+import Api_pb2_grpc
 import grpc
 import requests
 from bs4 import BeautifulSoup
 
-import Api_pb2
-import Api_pb2_grpc
 import auth
 import common
 

@@ -10,18 +10,14 @@ import logging
 import sys
 import time
 
-from typing_extensions import Self
-
 import Api_pb2
-import common
 import pychromecast
-from pychromecast.controllers.media import STREAM_TYPE_BUFFERED
-from pychromecast.controllers.media import BaseMediaPlayer
-from pychromecast.controllers.media import MediaStatus
-from pychromecast.controllers.media import MediaStatusListener
-from pychromecast.controllers.media import DefaultMediaReceiverController
+from pychromecast.controllers.media import STREAM_TYPE_BUFFERED, BaseMediaPlayer, DefaultMediaReceiverController, MediaStatus, MediaStatusListener
 from pychromecast.controllers.youtube import YouTubeController
 from pychromecast.response_handler import WaitResponse
+from typing_extensions import Self
+
+import common
 
 
 # https://github.com/home-assistant-libs/pychromecast/blob/master/pychromecast/controllers/media.py
@@ -75,6 +71,7 @@ class VidFilePlayer(common.PlayerBase, MediaStatusListener):
 
         Returns:
             VidFilePlayer
+
         """
         self._logger.debug("AEnter")
         self._loop = asyncio.get_running_loop()

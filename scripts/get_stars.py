@@ -4,10 +4,10 @@
 
 import argparse
 
-import grpc
-
 import Api_pb2
 import Api_pb2_grpc
+import grpc
+
 import auth
 import common
 
@@ -35,4 +35,4 @@ search = stub.Search(Api_pb2.SearchRequest(Provider="Youtube", FolderId=args.fol
 for video in search.Videos:
     if not video.Star:
         raise Exception(f"invalid search results: {video.ProviderVideoId} is not stared.")
-    print(f"{video.ProviderVideoId}")
+    print(f"{video.ProviderVideoId}")  # noqa: T201

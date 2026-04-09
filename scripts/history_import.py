@@ -7,12 +7,12 @@ import logging
 import sys
 import urllib.parse
 from datetime import datetime
-
-import grpc
 from pathlib import Path
 
 import Api_pb2
 import Api_pb2_grpc
+import grpc
+
 import auth
 import common
 

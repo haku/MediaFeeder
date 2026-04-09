@@ -7,15 +7,16 @@ from __future__ import annotations
 import argparse
 import asyncio
 import logging
+from typing import override
 
+import Api_pb2
 import pyytlounge
 from typing_extensions import Self
 
-import Api_pb2
 import auth
 import common
 
-# TODO
+# TODO: Add features:
 # - set volume
 # - set rate
 # - set subtitles
@@ -27,8 +28,6 @@ class LoungePlayer(pyytlounge.EventListener, common.PlayerBase):
     _api: pyytlounge.YtLoungeApi
     _shuffler: common.Shuffler
     _current_player_state: pyytlounge.State | None = None
-
-    _prov_id_to_video_id = {}
 
     _now_provider_id: str | None = None
     _now_duration: float | None = None
@@ -42,6 +41,7 @@ class LoungePlayer(pyytlounge.EventListener, common.PlayerBase):
         if verbose:
             self._logger.setLevel(logging.DEBUG)
         self._logger.debug("LoungePlayer Init")
+        self._prov_id_to_video_id: dict[str, int] = {}
 
         self._api = pyytlounge.YtLoungeApi("MediaFeeder", self)
         self._shuffler = common.Shuffler(name, self, verbose=verbose)
@@ -68,18 +68,21 @@ class LoungePlayer(pyytlounge.EventListener, common.PlayerBase):
         await self._api.__aexit__(*args)
 
     # PlayerBase
+    @override
     async def ensure_ready(self) -> None:
         pass
 
     # PlayerBase
+    @override
     async def play_video(self, video: Api_pb2.VideoReply) -> None:
         """Play a video immidiately."""
         self._logger.debug("Play Video")
         self._prov_id_to_video_id[video.VideoId] = video.Id
 
-        await self._api._command("setPlaylist", {"videoId": video.VideoId})
+        await self._api._command("setPlaylist", {"videoId": video.VideoId})  # noqa: SLF001
 
     # PlayerBase
+    @override
     async def play_pause(self, resume_video_id: int | None, resume_from_position: int | None) -> None:
         """Toggle the paused state."""
         self._logger.debug("Play Pause")
@@ -95,21 +98,25 @@ class LoungePlayer(pyytlounge.EventListener, common.PlayerBase):
             self._logger.warning("Don't know how to play/pause from state %s", self._current_player_state)
 
     # PlayerBase
+    @override
     async def pause_if_playing(self) -> None:
         """Pause, but only if in playing state."""
         if self._current_player_state == pyytlounge.State.Playing:
             await self._api.pause()
 
     # PlayerBase
+    @override
     async def seek(self, position_seconds: int) -> None:
         """Seek to a position in the video."""
         await self._api.seek_to(position_seconds)
 
     # PlayerBase
+    @override
     async def change_volume(self, direction: int) -> None:
         self._logger.info("TODO: impl volume change")
 
     # PlayerBase
+    @override
     async def change_playback_rate(self, rate: float) -> None:
         self._logger.info("TODO: impl rate change")
 
@@ -166,14 +173,19 @@ class LoungePlayer(pyytlounge.EventListener, common.PlayerBase):
 
         await self._shuffler.send_status(update)
 
-        if event.current_time is None and event.state == pyytlounge.State.Starting and event.video_id == self._now_provider_id and self._now_provider_id is not None and self._now_duration is not None:
+        if (
+            event.current_time is None
+            and event.state == pyytlounge.State.Starting
+            and event.video_id == self._now_provider_id
+            and self._now_provider_id is not None
+            and self._now_duration is not None
+        ):
             self._logger.debug("Assuming video finished: now_provider_id=%s  now_duration=%s", self._now_provider_id, self._now_duration)
             await self._shuffler.finished(self._prov_id_to_video_id[self._now_provider_id])
             self._now_provider_id = None
             self._now_duration = None
             self._prev_provider_id = None
             self._prev_duration = None
-
 
     async def ad_playing_changed(self, event: pyytlounge.AdPlayingEvent) -> None:
         """Process an ad playing."""
@@ -224,7 +236,7 @@ class LoungePlayer(pyytlounge.EventListener, common.PlayerBase):
     async def _disable_autoplay(self) -> None:
         """Disable autoplay in the app."""
         await asyncio.sleep(10)
-        await self._api._command(
+        await self._api._command(  # noqa: SLF001
             "setAutoplayMode",
             {"autoplayMode": "DISABLED"},
         )

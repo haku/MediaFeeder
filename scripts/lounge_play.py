@@ -10,6 +10,7 @@ import sys
 import urllib
 
 import pyytlounge
+from typing_extensions import Self
 
 import auth
 import common
@@ -31,7 +32,7 @@ class LoungePlayer(pyytlounge.EventListener):
         config = auth.MediaFeederConfig()
         self._api.load_auth_state(config.get_player(name))
 
-    async def __aenter__(self) -> LoungePlayer:
+    async def __aenter__(self) -> Self:
         """Connect to Lounge.
 
         Returns:
@@ -204,9 +205,10 @@ async def _main() -> None:
         ids: list[str] = []
 
         for video_id in sys.argv[2].split(","):
-            try:
-                ids.append(urllib.parse.parse_qs(urllib.parse.urlparse(video_id).query)["v"])
-            except KeyError:
+            url = urllib.parse.parse_qs(urllib.parse.urlparse(video_id).query)
+            if "v" in url:
+                ids.append(url["v"])
+            else:
                 ids.append(video_id)
 
         await player.play_video(ids.pop(0))
