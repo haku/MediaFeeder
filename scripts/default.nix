@@ -57,13 +57,22 @@ _: {
 
     bridges = pkgs.stdenv.mkDerivation {
       name = "mediafeeder-bridges";
-      src = ../scripts;
+      src = ./.;
       propagatedBuildInputs = [python];
+
+      nativeBuildInputs = [ pkgs.makeWrapper ];
 
       installPhase = ''
         runHook preInstall
 
-        install -Dt $out chromecast_bridge.py common.py auth.py config_file.py
+        sp="out/${python.sitePackages}"
+        bin="$out/bin"
+        mkdir -p "$sp" "$bin"
+        install -m644 *.py "$sp"
+
+        makeWrapper "${lib.getExe python}" $bin/mediafeeder-chromecast-bridge --add-flags "$sp/chromecast_bridge.py"
+        makeWrapper "${lib.getExe python}" $bin/mediafeeder-get-stars         --add-flags "$sp/get_stars.py"
+        makeWrapper "${lib.getExe python}" $bin/mediafeeder-lounge-bridge     --add-flags "$sp/lounge_bridge.py"
 
         runHook postInstall
       '';
@@ -73,24 +82,9 @@ _: {
         homepage = "https://github.com/girlpunk/mediafeeder";
       };
     };
-
-    bridgesWrapper = pkgs.writeShellScriptBin "chromecast-bridge" ''
-      ${python}/bin/python3 ${bridges}/chromecast_bridge.py
-    '';
-
-    allBridges = pkgs.symlinkJoin {
-      name = "mediafeeder-bridges";
-      paths = [bridges bridgesWrapper];
-    };
   in {
     make-shells.scripts = {
       name = "MediaFeeder Scripts";
-      #commands = [ {
-      #    name = "grpc-rebuild";
-      #    help = "Re-generate python GRPC bindings";
-      #    command = "${pkgs.python3}/bin/python -m grpc_tools.protoc --proto_path=../MediaFeeder/Services --python_out=. --grpc_python_out=. ../MediaFeeder/Services/Api.proto";
-      #  }
-      #];
       packages = with pkgs;
         [
           git
@@ -100,11 +94,11 @@ _: {
     };
 
     packages = {
-      mediafeeder-bridges = allBridges;
+      mediafeeder-bridges = bridges;
     };
 
     apps.mediafeeder-bridges = {
-      program = allBridges;
+      program = bridges;
     };
 
     treefmt = {
@@ -190,7 +184,7 @@ _: {
           };
 
           mypy.enable = true;
-          mypy.extraPackages = python;
+          mypy.extraPackages = [python];
           mypy.args = ["--follow-untyped-imports"];
 
           ruff.enable = true;
