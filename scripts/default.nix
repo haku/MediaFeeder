@@ -65,7 +65,7 @@ _: {
       installPhase = ''
         runHook preInstall
 
-        sp="out/${python.sitePackages}"
+        sp="$out/${python.sitePackages}"
         bin="$out/bin"
         mkdir -p "$sp" "$bin"
         install -m644 *.py "$sp"
