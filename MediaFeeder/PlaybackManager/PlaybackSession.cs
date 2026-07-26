@@ -11,6 +11,7 @@ public sealed class PlaybackSession : IDisposable
     private readonly PlaybackSessionManager _manager;
     private IDbContextFactory<MediaFeederDataContext> DbContextFactory { get; }
 
+    public string? _title;
     private Video? _video;
     private TimeSpan? _currentPosition;
     private AuthUser _user;
@@ -27,7 +28,6 @@ public sealed class PlaybackSession : IDisposable
     private bool _supportsVolumeChange;
     private bool _supportsSubtitles;
 
-    public string? Title { get; set; }
     public event Action? UpdateEvent;
     public event Action? PlayPauseEvent;
     public event Action? PauseIfPlayingEvent;
@@ -197,6 +197,16 @@ public sealed class PlaybackSession : IDisposable
             return "";
         var span = TimeSpan.FromSeconds((long)(video.Duration / rate));
         return $" ({span.ToString()})";
+    }
+
+    public string? Title
+    {
+        get => _title;
+        set
+        {
+            _title = value;
+            UpdateEvent?.Invoke();
+        }
     }
 
     public Video? Video
