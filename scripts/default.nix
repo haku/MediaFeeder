@@ -109,6 +109,10 @@ _: {
       };
       programs.ruff-check = {
         enable = true;
+        excludes = [
+          "NetworkPlaybackAgent/*"
+          "YTDownloader/*"
+        ];
         extendSelect = [
           "A"
           "ANN"
