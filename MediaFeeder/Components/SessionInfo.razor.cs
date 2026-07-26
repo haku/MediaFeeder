@@ -33,12 +33,6 @@ public sealed partial class SessionInfo : IDisposable
         InvokeAsync(StateHasChanged);
     }
 
-    protected override void OnInitialized()
-    {
-        if (Session != null)
-            Session.UpdateEvent += OnSessionUpdated;
-    }
-
     public void Dispose()
     {
         Session?.UpdateEvent -= OnSessionUpdated;
@@ -66,9 +60,12 @@ public sealed partial class SessionInfo : IDisposable
                 _loading.Release();
             }
         }
+    }
 
+    protected override void OnParametersSet()
+    {
         if (Session != null)
-            Session.UpdateEvent += () => InvokeAsync(StateHasChanged);
+            Session.UpdateEvent += OnSessionUpdated;
     }
 
     private async Task ToggleStar()
