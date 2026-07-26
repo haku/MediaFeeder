@@ -15,9 +15,10 @@
             {
                 <TabPane Key="@session.Title">
                     <TabTemplate>
-                        <span style="font-size: 120%;">@(session.State switch {
-                                                           PlayerState.Playing =>"⏵",
-                                                           PlayerState.Advert =>"⏵",
+                        <span style="font-size: 120%;">@(session.State switch
+                                                       {
+                                                           PlayerState.Playing => "⏵",
+                                                           PlayerState.Advert => "⏵",
                                                            PlayerState.Paused => "⏸",
                                                            PlayerState.Loading => "⧖",
                                                            _ => "⏹"
