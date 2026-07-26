@@ -7,7 +7,7 @@ using Microsoft.EntityFrameworkCore;
 
 namespace MediaFeeder.Components;
 
-public sealed partial class SessionInfo
+public sealed partial class SessionInfo : IDisposable
 {
     [Parameter]
     [EditorRequired]
@@ -27,6 +27,22 @@ public sealed partial class SessionInfo
     public bool isMobile;
     private List<Folder> _allFolders = [];
     private readonly SemaphoreSlim _loading = new(1);
+
+    private void OnSessionUpdated()
+    {
+        InvokeAsync(StateHasChanged);
+    }
+
+    protected override void OnInitialized()
+    {
+        if (Session != null)
+            Session.UpdateEvent += OnSessionUpdated;
+    }
+
+    public void Dispose()
+    {
+        Session?.UpdateEvent -= OnSessionUpdated;
+    }
 
     protected override async Task OnInitializedAsync()
     {
