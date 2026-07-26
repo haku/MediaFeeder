@@ -206,21 +206,27 @@
         <AntList Size="ListSize.Small" Style="margin-top: 16px; max-height: 300px; overflow-y: auto;" Bordered DataSource="@Session.Playlist">
             <Header>
                 <Flex Gap="FlexGap.Small">
-                    <TreeSelect
-                        DataSource="@_allFolders"
-                        @bind-Value="@Session.SelectedFolderId"
-                        Placeholder="Please select folder"
-                        ItemValue="static item => item.Id"
-                        ItemLabel="static item => item.Name"
-                        AllowClear
-                        EnableSearch
-                        TreeDefaultExpandAll
-                        MatchedStyle="font-weight: bold"
-                        ChildrenExpression="static node => node.DataItem.Subfolders"
-                        TitleExpression="static node => node.DataItem.Name"
-                        TitleTemplate="static node => node.DataItem.Name.ToRenderFragment()"
-                        KeyExpression="static node => node.DataItem.Id.ToString()"
-                        IsLeafExpression="static node => node.DataItem.Subfolders.Count == 0"/>
+                    @if (_allFolders.Count > 0) {
+                        <TreeSelect
+                            DataSource="@_allFolders"
+                            @bind-Value="@Session.SelectedFolderId"
+                            Placeholder="Please select folder"
+                            ItemValue="static item => item.Id"
+                            ItemLabel="static item => item.Name"
+                            AllowClear
+                            EnableSearch
+                            TreeDefaultExpandAll
+                            MatchedStyle="font-weight: bold"
+                            ChildrenExpression="static node => node.DataItem.Subfolders"
+                            TitleExpression="static node => node.DataItem.Name"
+                            TitleTemplate="static node => node.DataItem.Name.ToRenderFragment()"
+                            KeyExpression="static node => node.DataItem.Id.ToString()"
+                            IsLeafExpression="static node => node.DataItem.Subfolders.Count == 0"/>
+                    }
+                    else
+                    {
+                        <p>Loading folders...</p>
+                    }
                     <DropdownButton
                         OnClick="@(() => Session.TriggerAddVideos(60))"
                         Trigger="@(new[] { Trigger.Click })">

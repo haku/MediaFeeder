@@ -28,9 +28,9 @@ public sealed partial class SessionInfo
     private List<Folder> _allFolders = [];
     private readonly SemaphoreSlim _loading = new(1);
 
-    protected override async Task OnParametersSetAsync()
+    protected override async Task OnInitializedAsync()
     {
-        if (Session != null && !_allFolders.Any())
+        if (Session != null && _allFolders.Count < 1)
         {
             await _loading.WaitAsync();
 
