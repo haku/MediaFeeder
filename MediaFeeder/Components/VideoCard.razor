@@ -59,11 +59,19 @@
             @if (Video != null)
             {
                 <CardMeta Description="@Video.Description.Truncate(120)">
-                  <TitleTemplate>
-                    <Tooltip Placement="Placement.BottomLeft" Style="width: 100%;" Title="@Video.Name">
-                      <div class="ant-card-meta-title">@Video.Name</div>
-                    </Tooltip>
-                  </TitleTemplate>
+                    <TitleTemplate>
+                        <Tooltip Placement="Placement.BottomLeft" Style="width: 100%;" Title="@Video.Name">
+                            @if (Video is { PlaybackPosition: > 0, Duration: > 0 })
+                            {
+                                <Progress
+                                    ShowInfo="false"
+                                    Type="ProgressType.Line"
+                                    StrokeLinecap="ProgressStrokeLinecap.Square"
+                                    Percent="@(Video.PlaybackPosition.Value / (double) Video.Duration.Value * 100.0)" />
+                            }
+                            <div class="ant-card-meta-title">@Video.Name</div>
+                        </Tooltip>
+                    </TitleTemplate>
                 </CardMeta>
                 <AntDesign.Text Type="TextElementType.Secondary">
                     @Video.Subscription?.Name
