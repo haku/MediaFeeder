@@ -113,6 +113,7 @@ public static class ShuffleHelper
             v.Watched == false
             && v.Duration != null
             && subscriptions.Select(static s => s.Id).Contains(v.SubscriptionId)
+            && !reply.Contains(v)
             && !excludeOrEmpty.Contains(v)
         );
 
