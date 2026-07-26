@@ -17,16 +17,12 @@ public sealed partial class SessionInfo : IDisposable
     public required IDbContextFactory<MediaFeederDataContext> ContextFactory { get; set; }
 
     [Inject]
-    public required MediaFeederDataContext Context { get; set; }
-
-    [Inject]
     public required IMessageService MessageService { get; set; }
 
     [Inject]
     public required IServiceProvider ServiceProvider { get; set; }
     public bool isMobile;
     private List<Folder> _allFolders = [];
-    private readonly SemaphoreSlim _loading = new(1);
 
     private void OnSessionUpdated()
     {
@@ -38,27 +34,20 @@ public sealed partial class SessionInfo : IDisposable
         Session?.UpdateEvent -= OnSessionUpdated;
     }
 
+    // confusingly this gets called twice with DIFFERENT instances of this class with the same Session.
     protected override async Task OnInitializedAsync()
     {
         if (Session != null && _allFolders.Count < 1)
         {
-            await _loading.WaitAsync();
-
-            try
-            {
-                _allFolders = await Context
-                    .Folders.AsNoTracking()
-                    .Where(f => f.User == Session.User)
-                    .Include(static f => f.Subfolders)
-                    .Select(Folder.GetProjection(5))
-                    .Where(static f => f.ParentId == null)
-                    .OrderBy(static f => f.Name)
-                    .ToListAsync();
-            }
-            finally
-            {
-                _loading.Release();
-            }
+            await using var context = await ContextFactory.CreateDbContextAsync();
+            _allFolders = await context
+                .Folders.AsNoTracking()
+                .Where(f => f.User == Session.User)
+                .Include(static f => f.Subfolders)
+                .Select(Folder.GetProjection(5))
+                .Where(static f => f.ParentId == null)
+                .OrderBy(static f => f.Name)
+                .ToListAsync();
         }
     }
 
