@@ -11,14 +11,21 @@
     <AnalysisMode>All</AnalysisMode>
     <EnforceCodeStyleInBuild>true</EnforceCodeStyleInBuild>
     <EnablePackageValidation>true</EnablePackageValidation>
-    
+
     <GenerateDocumentationFile>true</GenerateDocumentationFile>
     <RestorePackagesWithLockFile>true</RestorePackagesWithLockFile>
     <RunAOTCompilation>true</RunAOTCompilation>
-    
+
     <PreserveCompilationContext>true</PreserveCompilationContext>
     <MvcRazorCompileOnPublish>true</MvcRazorCompileOnPublish>
     <RazorCompileOnBuild>true</RazorCompileOnBuild>
+    <NoWarn>
+      CS1591,  <!-- Missing XML comment for publicly visible type or member -->
+      IDE0011, <!-- Add braces to 'if' statement. -->
+      RCS0001, <!-- Add blank line after embedded statement -->
+      RCS0036, <!-- Remove blank line between single-line declarations of same kind -->
+      RCS1046, <!-- Asynchronous method name should end with 'Async' -->
+    </NoWarn>
   </PropertyGroup>
 
   <ItemGroup>
