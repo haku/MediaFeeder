@@ -92,6 +92,21 @@
         ></Select>
     </FormItem>
 
+    <FormItem Label="Watch Order" Required="true">
+        <Select TItem="WatchOrder"
+                TItemValue="WatchOrder"
+                DataSource="@(
+                            [
+                                WatchOrder.OldestFirst,
+                                WatchOrder.NewestFirst,
+                            ])"
+                @bind-Value="@context.WatchOrder"
+                ItemLabel="static c => c.Humanize()"
+                Placeholder="Order"
+                >
+        </Select>
+    </FormItem>
+
 </Form>
 } else {
 <span>Loading...</span>

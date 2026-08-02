@@ -16,4 +16,5 @@ public sealed class SubscriptionForm
     public bool RewritePlaylistIndices { get; set; }
     public string? Provider { get; set; }
     public bool DisableSync { get; set; }
+    public WatchOrder WatchOrder { get; set; }
 }

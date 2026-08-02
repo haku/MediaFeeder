@@ -62,6 +62,7 @@ public sealed partial class EditSubscription
                 Provider = subscription.Provider,
                 RewritePlaylistIndices = subscription.RewritePlaylistIndices,
                 DisableSync = subscription.DisableSync,
+                WatchOrder = subscription.WatchOrder,
             };
         }
 
@@ -113,6 +114,7 @@ public sealed partial class EditSubscription
                 RewritePlaylistIndices = Subscription.RewritePlaylistIndices,
                 Description = "",
                 UserId = user.Id,
+                WatchOrder = Subscription.WatchOrder,
             };
 
             Context.Subscriptions.Add(subscription);
@@ -135,6 +137,7 @@ public sealed partial class EditSubscription
             subscription.Provider = Subscription.Provider ?? throw new InvalidOperationException();
             subscription.RewritePlaylistIndices = Subscription.RewritePlaylistIndices;
             subscription.DisableSync = Subscription.DisableSync;
+            subscription.WatchOrder = Subscription.WatchOrder;
         }
 
         await Context.SaveChangesAsync();

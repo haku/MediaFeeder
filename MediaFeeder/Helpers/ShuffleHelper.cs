@@ -4,6 +4,9 @@ using Microsoft.EntityFrameworkCore;
 
 namespace MediaFeeder.Helpers;
 
+using Data.Enums;
+using Filters;
+
 public static class ShuffleHelper
 {
     public static async Task<List<Video>> Shuffle(
@@ -109,10 +112,14 @@ public static class ShuffleHelper
         CancellationToken cancellationToken
     )
     {
+        var subIds = subscriptions
+            .Where(static s => s.WatchOrder != WatchOrder.NewestFirst)
+            .Select(static s => s.Id)
+            .ToList();
         var query = dataContext.Videos.Where(v =>
             v.Watched == false
             && v.Duration != null
-            && subscriptions.Select(static s => s.Id).Contains(v.SubscriptionId)
+            && subIds.Contains(v.SubscriptionId)
             && !reply.Contains(v)
             && !excludeOrEmpty.Contains(v)
         );
@@ -123,7 +130,7 @@ public static class ShuffleHelper
             query = query.Where(v => v.Duration <= timeRemainingTotalSeconds);
         }
 
-        (_, timeRemaining) = await MaybeAddVideo(query, timeRemaining, reply, cancellationToken);
+        (_, timeRemaining) = await MaybeAddVideo(query, null, timeRemaining, reply, cancellationToken);
         return timeRemaining;
     }
 
@@ -160,6 +167,7 @@ public static class ShuffleHelper
                     var query = baseQuery.Where(v => v.SubscriptionId == subscription.Id);
                     (var added, timeRemaining) = await MaybeAddVideo(
                         query,
+                        subscription,
                         timeRemaining,
                         reply,
                         cancellationToken
@@ -175,6 +183,7 @@ public static class ShuffleHelper
                 );
                 (loopAgain, timeRemaining) = await MaybeAddVideo(
                     query,
+                    null,
                     timeRemaining,
                     reply,
                     cancellationToken
@@ -187,14 +196,27 @@ public static class ShuffleHelper
 
     private static async Task<(bool added, TimeSpan timeRemaining)> MaybeAddVideo(
         IQueryable<Video> query,
+        Subscription? subscription,
         TimeSpan timeRemaining,
         List<Video> reply,
         CancellationToken cancellationToken
     )
     {
+        var sortOrder = SortOrders.Oldest;
+        if (subscription != null)
+        {
+            // TODO there is a probably a nicer way to do this.
+            sortOrder = subscription.WatchOrder switch
+            {
+                WatchOrder.OldestFirst => SortOrders.Oldest,
+                WatchOrder.NewestFirst => SortOrders.Newest,
+                _ => SortOrders.Oldest,
+            };
+        }
+
         var video = await query
             .Include(static v => v.Subscription)
-            .OrderBy(static v => v.PublishDate)
+            .SortVideos(sortOrder)
             .FirstOrDefaultAsync(cancellationToken);
 
         if (video == null || video.DurationSpan > timeRemaining)

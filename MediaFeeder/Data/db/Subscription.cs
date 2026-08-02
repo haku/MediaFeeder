@@ -45,6 +45,8 @@ public class Subscription : ITreeSelectable
 
     public bool DisableSync { get; set; }
 
+    public WatchOrder WatchOrder { get; set; } = WatchOrder.OldestFirst;
+
     public virtual Folder? ParentFolder { get; set; }
     public virtual AuthUser? User { get; set; }
     public virtual ICollection<Video> Videos { get; init; } = [];

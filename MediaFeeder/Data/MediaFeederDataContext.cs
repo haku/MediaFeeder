@@ -681,6 +681,9 @@ public class MediaFeederDataContext(DbContextOptions<MediaFeederDataContext> opt
             entity.Property(static e => e.Thumb).HasColumnName("thumb");
             entity.Property(static e => e.Thumbnail).HasColumnName("thumbnail");
             entity.Property(static e => e.UserId).HasColumnName("user_id");
+            entity.Property(static e => e.WatchOrder)
+                .HasDefaultValue(WatchOrder.OldestFirst)
+                .HasSentinel(WatchOrder.Unknown);
 
             entity
                 .HasOne(static d => d.ParentFolder)
