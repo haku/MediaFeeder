@@ -130,7 +130,7 @@ public static class ShuffleHelper
             query = query.Where(v => v.Duration <= timeRemainingTotalSeconds);
         }
 
-        (_, timeRemaining) = await MaybeAddVideo(query, null, timeRemaining, reply, cancellationToken);
+        (_, timeRemaining) = await MaybeAddVideo(query, null, timeRemaining, false, reply, cancellationToken);
         return timeRemaining;
     }
 
@@ -169,6 +169,7 @@ public static class ShuffleHelper
                         query,
                         subscription,
                         timeRemaining,
+                        true,
                         reply,
                         cancellationToken
                     );
@@ -185,6 +186,7 @@ public static class ShuffleHelper
                     query,
                     null,
                     timeRemaining,
+                    true,
                     reply,
                     cancellationToken
                 );
@@ -198,6 +200,7 @@ public static class ShuffleHelper
         IQueryable<Video> query,
         Subscription? subscription,
         TimeSpan timeRemaining,
+        bool enforceTimeRemaining,
         List<Video> reply,
         CancellationToken cancellationToken
     )
@@ -219,7 +222,7 @@ public static class ShuffleHelper
             .SortVideos(sortOrder)
             .FirstOrDefaultAsync(cancellationToken);
 
-        if (video == null || video.DurationSpan > timeRemaining)
+        if (video == null || (video.DurationSpan > timeRemaining && enforceTimeRemaining))
             return (false, timeRemaining);
 
         reply.Add(video);
